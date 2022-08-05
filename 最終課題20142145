@@ -1,0 +1,62 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+//クラス「物」の設定
+struct object {
+    int p;  //名前・番号
+	int w;  //重さ
+	int v;  //価値
+	object(int newp, int neww, int newv) : p(newp), w(neww), v(newv) {}
+};
+
+
+int nup(int i, int n, int j, vector<object>& ob){
+	int a;
+	if (j < ob[i].w){
+		// 残りの容量が足りず物iを入れられないので、入れないパターンだけ処理
+		// i+1 以降の物のみを使ったときの最大値をそのままこの場合の最大値にする
+		a = nup(i + 1, n, j, ob);
+		}
+	else if (i == n) {
+		// 物がもう残っていないときは、価値の和の最大値は0で確定
+		a = 0;
+	}
+	else{
+		// 物iを入れるか入れないか選べるので、両方試して価値の和が大きい方を選ぶ
+		a = max(
+			nup(i + 1, n, j, ob),                      //入れない場合
+			nup(i + 1, n, j - ob[i].w, ob) + ob[i].v   //入れる場合
+		);
+		if(a==nup(i + 1, n, j - ob[i].w, ob) + ob[i].v){
+		    //cout << i+1 <<","<< a << endl; //選択の過程を表示
+		}
+	}
+	return a;
+}
+
+bool operator<(const object& p1, const object& p2){
+    return p1.p < p2.p;
+}
+
+int main() {
+	//物の情報（ｐ、ｗ、ｖ）を入力
+	vector<object> ob;
+	ob.emplace_back(1, 4, 9);
+	ob.emplace_back(2, 1, 8);
+	ob.emplace_back(3, 3, 7);
+	ob.emplace_back(4, 2, 3);
+	ob.emplace_back(5, 3, 6);
+	int n = 5;  //物の総数
+	int W = 7;  //ナップザックの容量
+	
+	cout <<" p  w v\n";
+	sort(ob.begin(), ob.end());
+	for (auto q : ob){
+	    cout <<"("<< q.p <<") "<< q.w <<" "<< q.v <<"\n";
+	}
+
+	// 0番目以降で容量Ｗ以下の場合の結果を表示する
+	cout <<"V_Max="<< nup(0, n, W, ob) << endl;
+}
